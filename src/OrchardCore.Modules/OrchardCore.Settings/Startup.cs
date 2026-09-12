@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using OrchardCore.Deployment;
 using OrchardCore.DisplayManagement;
 using OrchardCore.DisplayManagement.Handlers;
+using OrchardCore.DisplayManagement.Notify;
 using OrchardCore.Environment.Options;
 using OrchardCore.Environment.Shell.Configuration;
 using OrchardCore.Environment.Shell.Scope;
@@ -45,6 +46,7 @@ public sealed class Startup : StartupBase
 
         // Site Settings editor
         services.AddSiteDisplayDriver<DefaultSiteSettingsDisplayDriver>();
+        services.AddSiteDisplayDriver<ToastSettingsDisplayDriver>();
         services.AddSiteDisplayDriver<DebugSettingsDisplayDriver>();
         services.AddSiteDisplayDriver<ButtonsSettingsDisplayDriver>();
         services.AddSiteSettingsPermission(DefaultSiteSettingsDisplayDriver.GroupId, SettingsPermissions.ManageGeneralSettings);
@@ -60,6 +62,7 @@ public sealed class Startup : StartupBase
 
         services.AddTransient<IPostConfigureOptions<ResourceOptions>, ResourceOptionsConfiguration>();
         services.AddTransient<IPostConfigureOptions<PagerOptions>, PagerOptionsConfiguration>();
+        services.AddTransient<IPostConfigureOptions<ToastOptions>, ToastOptionsConfiguration>();
         services.AddTransient<IConfigureOptions<ShapeRenderingOptions>, ShapeRenderingOptionsConfiguration>();
 
         services.AddScoped<IModularTenantEvents, PreloadSiteSettingsTenantEventHandler>();
@@ -128,5 +131,9 @@ public sealed class DeploymentStartup : StartupBase
         services.AddSiteSettingsPropertyDeploymentStep<DebugSettings, DeploymentStartup>(
             S => S["Debugging settings"],
             S => S["Exports the debugging settings."]);
+
+        services.AddSiteSettingsPropertyDeploymentStep<ToastSettings, DeploymentStartup>(
+            S => S["Accessibility settings"],
+            S => S["Exports the accessibility settings."]);
     }
 }

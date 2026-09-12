@@ -1,0 +1,61 @@
+@using Microsoft.AspNetCore.Html
+@using OrchardCore.Settings.Drivers
+@model ToastSettingsViewModel
+
+@{
+    var inputId = Html.IdFor(m => m.SuccessDismissalDelaySeconds);
+    var hintId = inputId + "_Hint";
+    var statusId = inputId + "_Status";
+
+    var neverText = T["Success messages will not be dismissed automatically. They stay until the user closes them."].Value;
+    var afterText = T["Success messages will be dismissed automatically after {0} seconds (paused while hovered or focused)."].Value;
+
+    // Same strict rule as the driver; an unparsable success dismissal delay renders an empty status line.
+    IHtmlContent statusText = HtmlString.Empty;
+    if (ToastSettingsDisplayDriver.TryParseSuccessDismissalDelay(Model.SuccessDismissalDelaySeconds, out var seconds))
+    {
+        statusText = seconds == 0
+            ? T["Success messages will not be dismissed automatically. They stay until the user closes them."]
+            : T["Success messages will be dismissed automatically after {0} seconds (paused while hovered or focused).", seconds];
+    }
+}
+
+<div class="ocat-limited-wrapper" asp-validation-class-for="SuccessDismissalDelaySeconds">
+    <label asp-for="SuccessDismissalDelaySeconds" class="ocat-label">@T["Success message dismissal delay (seconds)"]</label>
+    <div class="ocat-limited">
+        <input asp-for="SuccessDismissalDelaySeconds" type="number" min="0" max="60" step="1" class="form-control" aria-describedby="@hintId @statusId" data-toast-delay-input />
+        <span asp-validation-for="SuccessDismissalDelaySeconds"></span>
+        <span id="@hintId" class="hint">@T["Seconds before success messages are dismissed automatically. Set to 0 so success messages are never dismissed automatically and stay until closed. Otherwise use 5–60. Information, warning and error messages are never dismissed automatically."]</span>
+        <span id="@statusId" class="hint" data-toast-delay-status data-text-never="@neverText" data-text-after="@afterText">@statusText</span>
+    </div>
+</div>
+
+<script at="Foot">
+    document.addEventListener('DOMContentLoaded', function () {
+        // Keeps the auto-dismiss status line in sync with the success dismissal delay input.
+        // The status line is intentionally not a live region (no aria-live or role); it is read through aria-describedby.
+        var input = document.querySelector('[data-toast-delay-input]');
+        var status = document.querySelector('[data-toast-delay-status]');
+
+        if (!input || !status) {
+            return;
+        }
+
+        input.addEventListener('input', function () {
+            var value = input.value;
+            var text = '';
+
+            if (/^\d+$/.test(value)) {
+                var seconds = parseInt(value, 10);
+
+                if (seconds === 0) {
+                    text = status.getAttribute('data-text-never');
+                } else if (seconds >= 5 && seconds <= 60) {
+                    text = status.getAttribute('data-text-after').replace('{0}', String(seconds));
+                }
+            }
+
+            status.textContent = text;
+        });
+    });
+</script>

@@ -68,7 +68,7 @@ public static class NotifierExtensions
     /// <param name="notifier">The <see cref="INotifier"/>.</param>
     /// <param name="message">A localized message to display.</param>
     public static ValueTask SuccessAsync(this INotifier notifier, LocalizedHtmlString message)
-        => notifier.AddAsync(NotifyType.Success, message, new NotifyContext { DismissalMilliseconds = 5000 });
+        => notifier.AddAsync(NotifyType.Success, message, new NotifyContext { UseDefaultSuccessDismissal = true });
 
     /// <summary>
     /// Adds a new UI notification of type Success with an auto-dismiss delay.

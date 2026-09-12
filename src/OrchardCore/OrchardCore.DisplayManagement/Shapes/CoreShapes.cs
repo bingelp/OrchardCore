@@ -126,7 +126,9 @@ public class CoreShapes : IShapeAttributeProvider
         var message = Shape.Properties["Message"] as IHtmlContent;
         tagBuilder.AddCssClass("message");
         tagBuilder.AddCssClass("message-" + type);
-        tagBuilder.Attributes["role"] = "alert";
+
+        // Success and Information are announced politely; Warning and Error interrupt.
+        tagBuilder.Attributes["role"] = type is "success" or "information" ? "status" : "alert";
         tagBuilder.InnerHtml.AppendHtml(message);
         return tagBuilder;
     }
