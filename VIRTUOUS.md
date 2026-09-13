@@ -1,9 +1,5 @@
 # Virtuous Coding Assignment
 
-```
-Started the project at 2:45PM 9/12.
-```
-
 ## Project Choice and Issue
 I looked at several repos and had a hard time finding an open issue that I thought fit th scope of this exercise. I had not heard of this CMS before I was interested in looking into it in general. While looking over the issues, I noticed this one that was related to toasts and specifically accessibility. When I worked as a contractor for the VA, I spent a lot of time working on Section 508 compliance. Section 508 dictates the required level of accessibility for all government websites. Specifically, Section 508 requires compliance with WCAG 2.0 (Web Content Accessibility Guidelines). For my work with the VA, that even extended to the use of screen readers and keyboard-only navigation. Accessibility is something I'm passionate about, and WCAG itself can be a little tricky. 
 
