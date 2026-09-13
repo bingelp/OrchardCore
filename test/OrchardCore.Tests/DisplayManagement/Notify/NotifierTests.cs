@@ -5,10 +5,16 @@ namespace OrchardCore.Tests.DisplayManagement.Notify;
 
 public class NotifierTests
 {
+    private static Notifier CreateNotifier(int successDismissalDelaySeconds = 5)
+        => new(NullLogger<Notifier>.Instance, Options.Create(new ToastOptions
+        {
+            SuccessDismissalDelaySeconds = successDismissalDelaySeconds,
+        }));
+
     [Fact]
     public async Task SuccessAsync_OutMilliseconds_SetsDefaultMilliseconds()
     {
-        var notifier = new Notifier(NullLogger<Notifier>.Instance);
+        var notifier = CreateNotifier();
 
         await notifier.SuccessAsync(new LocalizedHtmlString("Saved", "Saved"));
 
@@ -18,9 +24,45 @@ public class NotifierTests
     }
 
     [Fact]
+    public async Task SuccessAsync_OutMilliseconds_ConfiguredDelay_SetsConfiguredMilliseconds()
+    {
+        var notifier = CreateNotifier(successDismissalDelaySeconds: 30);
+
+        await notifier.SuccessAsync(new LocalizedHtmlString("Saved", "Saved"));
+
+        var entry = Assert.Single(notifier.List());
+        Assert.Equal(NotifyType.Success, entry.Type);
+        Assert.Equal(30000, entry.DismissalMilliseconds);
+    }
+
+    [Fact]
+    public async Task SuccessAsync_OutMilliseconds_ConfiguredZero_SetsNullMilliseconds()
+    {
+        var notifier = CreateNotifier(successDismissalDelaySeconds: 0);
+
+        await notifier.SuccessAsync(new LocalizedHtmlString("Saved", "Saved"));
+
+        var entry = Assert.Single(notifier.List());
+        Assert.Equal(NotifyType.Success, entry.Type);
+        Assert.Null(entry.DismissalMilliseconds);
+    }
+
+    [Fact]
+    public async Task SuccessAsync_ExplicitMilliseconds_ConfiguredZero_KeepsExplicitMilliseconds()
+    {
+        var notifier = CreateNotifier(successDismissalDelaySeconds: 0);
+
+        await notifier.SuccessAsync(new LocalizedHtmlString("Saved", "Saved"), 3000);
+
+        var entry = Assert.Single(notifier.List());
+        Assert.Equal(NotifyType.Success, entry.Type);
+        Assert.Equal(3000, entry.DismissalMilliseconds);
+    }
+
+    [Fact]
     public async Task ErrorAsync_OutMilliseconds_DoesNotSetMilliseconds()
     {
-        var notifier = new Notifier(NullLogger<Notifier>.Instance);
+        var notifier = CreateNotifier();
 
         await notifier.ErrorAsync(new LocalizedHtmlString("Problem", "Problem"));
 
@@ -30,9 +72,45 @@ public class NotifierTests
     }
 
     [Fact]
+    public async Task InformationAsync_OutMilliseconds_DoesNotSetMilliseconds()
+    {
+        var notifier = CreateNotifier();
+
+        await notifier.InformationAsync(new LocalizedHtmlString("Info", "Info"));
+
+        var entry = Assert.Single(notifier.List());
+        Assert.Equal(NotifyType.Information, entry.Type);
+        Assert.Null(entry.DismissalMilliseconds);
+    }
+
+    [Fact]
+    public async Task WarningAsync_OutMilliseconds_DoesNotSetMilliseconds()
+    {
+        var notifier = CreateNotifier();
+
+        await notifier.WarningAsync(new LocalizedHtmlString("Warning", "Warning"));
+
+        var entry = Assert.Single(notifier.List());
+        Assert.Equal(NotifyType.Warning, entry.Type);
+        Assert.Null(entry.DismissalMilliseconds);
+    }
+
+    [Fact]
+    public async Task AddAsync_SuccessWithNoContext_DoesNotSetMilliseconds()
+    {
+        var notifier = CreateNotifier();
+
+        await notifier.AddAsync(NotifyType.Success, new LocalizedHtmlString("Saved", "Saved"));
+
+        var entry = Assert.Single(notifier.List());
+        Assert.Equal(NotifyType.Success, entry.Type);
+        Assert.Null(entry.DismissalMilliseconds);
+    }
+
+    [Fact]
     public async Task SuccessAsync_Milliseconds_SetsMillisecondsOnNotifyEntry()
     {
-        var notifier = new Notifier(NullLogger<Notifier>.Instance);
+        var notifier = CreateNotifier();
 
         await notifier.SuccessAsync(new LocalizedHtmlString("Saved", "Saved"), 3000);
 

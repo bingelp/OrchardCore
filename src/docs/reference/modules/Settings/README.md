@@ -25,6 +25,24 @@ The built-in **General** group is available in the admin under **Settings** > **
 | `AppendVersion`     | Whether to append a version token to static asset URLs for cache busting.   |
 | `CacheMode`         | The default caching behavior for resources.                                 |
 
+### Accessibility
+
+The **Accessibility** tab of the **General** group (placed directly after **Site**) controls how toasts, the short-lived status messages shown after an action, behave. It requires the `Manage general settings` permission.
+
+| Setting                                   | Description                                                                      |
+|-------------------------------------------|----------------------------------------------------------------------------------|
+| Success message dismissal delay (seconds) | How long a **Success** toast stays visible before it is dismissed automatically. |
+
+- Valid values are `0`, or a whole number from `5` to `60`. Any other value is rejected with a validation message.
+- `0` turns off auto-dismiss: success toasts stay until the user closes them.
+- When the setting has never been saved, the delay is `5` seconds.
+- The setting applies to **Success** toasts only. Information, Warning and Error toasts are never dismissed automatically.
+- Changes take effect on the next request, without restarting the application.
+
+The value is stored as a site settings section, `ToastSettings.SuccessDismissalDelaySeconds`, and there is no equivalent `appsettings.json` option. It can be exported and imported with the **Accessibility settings** deployment step.
+
+In code, the setting provides the default for `INotifier.SuccessAsync(message)`. An explicit duration, such as `SuccessAsync(message, milliseconds)` (or the equivalent `InformationAsync`, `WarningAsync` and `ErrorAsync` overloads), always takes precedence over the setting.
+
 A separate **Debugging** group exposes diagnostic options.
 
 ## Permissions
